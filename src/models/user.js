@@ -44,7 +44,11 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
+
 
 userSchema.pre("save", async function (next) {
   const user = this;
@@ -61,11 +65,17 @@ userSchema.pre("remove", async function (next) {
   next();
 });
 
+
+userSchema.virtual('transaction', {
+  ref: 'Transaction',
+  localField: '_id',
+  foreignField: 'owner'
+})
+
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
   delete user.tokens;
-
   return user;
 };
 

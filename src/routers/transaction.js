@@ -14,11 +14,23 @@ router.post("/transaction", auth, async (req, res) => {
   }
 });
 
-//TODO: add pagination
+
 router.get("/transaction", auth, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ owner: req.user._id });
-    res.send(transactions);
+    //const transactions = await Transaction.find({ owner: req.user._id });
+    const match = {};
+
+    const {limit = "0", skip = "0"} = req.query;
+    await req.user.populate({
+      path: 'transaction',
+      options: {
+        limit: parseInt(limit),
+        skip: parseInt(skip)
+      }
+    });
+    //console.log(req.user);
+    res.status(200).send(req.user.transaction);
+    // res.send(transactions);
   } catch (e) {
     res.status(500).send(e.message);
   }
